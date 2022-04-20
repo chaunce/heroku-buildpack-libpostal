@@ -36,8 +36,6 @@ echo "-----> libpostal make"
 make
 make install
 
-ldconfig
-
 apt-get install build-essential
 
 npm install -g node-gyp
