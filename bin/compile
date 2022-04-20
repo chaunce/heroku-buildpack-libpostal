@@ -36,13 +36,11 @@ echo "-----> libpostal make"
 make
 make install
 
-apt-get install build-essential
-
-npm install -g node-gyp
-
 echo "-----> libpostal mv to ${BUILD_DIR}/libpostal"
 mkdir -p "${BUILD_DIR}/libpostal"
 mv /app/libpostal/* "${BUILD_DIR}/libpostal"
+
+apt-get install -y node-gyp
 
 npm install node-postal
 
