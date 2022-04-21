@@ -30,7 +30,7 @@ git clone https://github.com/openvenues/libpostal
 cd libpostal/
 ./bootstrap.sh
 LDFLAGS="-L${BUILD_DIR}/libpostal/lib" CFLAGS="-I${BUILD_DIR}/libpostal/include" PKG_CONFIG_PATH="${BUILD_DIR}/libpostal/lib/pkgconfig"
-./configure  --enable-fast-install --prefix=/app/libpostal --datadir=/app/libpostal/data
+./configure --prefix=/app/libpostal --datadir=/app/libpostal/data
 
 echo "-----> libpostal make"
 make
@@ -40,10 +40,10 @@ echo "-----> libpostal mv to ${BUILD_DIR}/libpostal"
 mkdir -p "${BUILD_DIR}/libpostal"
 mv /app/libpostal/* "${BUILD_DIR}/libpostal"
 
-export LD_LIBRARY_PATH=/app/libpostal_o/lib
+export LD_LIBRARY_PATH="${BUILD_DIR}/libpostal/lib"
 
-mkdir -p "${BUILD_DIR}/libpostal_o/include"
-mkdir -p "${BUILD_DIR}/libpostal_o/lib"
+### mkdir -p "${BUILD_DIR}/libpostal_o/include"
+### mkdir -p "${BUILD_DIR}/libpostal_o/lib"
 
-cp -avr "${BUILD_DIR}/libpostal/include/." "${BUILD_DIR}/libpostal_o/include/"
-cp -avr "${BUILD_DIR}/libpostal/lib/." "${BUILD_DIR}/libpostal_o/lib/"
+### cp -avr "${BUILD_DIR}/libpostal/include/." "${BUILD_DIR}/libpostal_o/include/"
+### cp -avr "${BUILD_DIR}/libpostal/lib/." "${BUILD_DIR}/libpostal_o/lib/"
