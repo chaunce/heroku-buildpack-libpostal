@@ -40,7 +40,7 @@ echo "-----> libpostal mv to ${BUILD_DIR}/libpostal"
 mkdir -p "${BUILD_DIR}/libpostal"
 mv /app/libpostal/* "${BUILD_DIR}/libpostal"
 
-export LD_LIBRARY_PATH="${BUILD_DIR}/libpostal/lib"
+### export LD_LIBRARY_PATH="${BUILD_DIR}/libpostal/lib"
 
 ### mkdir -p "${BUILD_DIR}/libpostal_o/include"
 ### mkdir -p "${BUILD_DIR}/libpostal_o/lib"
