@@ -31,7 +31,7 @@ if [ -d "libpostal" ] && [ ! -d "libpostal/.git" ]; then
 fi;
 
 # clone libpostal repo if it does not exist
-if [ ! -d "libpostal" ];
+if [ ! -d "libpostal" ]; then
   echo "-----> cloning libpostal into cache"
   git clone https://github.com/openvenues/libpostal
 fi;
