@@ -20,36 +20,33 @@ echo "       Using cache dir ${CACHE_DIR}"
 echo "       Using build dir ${BUILD_DIR}"
 echo "       Using install dir ${INSTALL_DIR}"
 
-
 mkdir -p "${BUILD_DIR}"
 mkdir -p "${CACHE_DIR}"
 
 cd "${CACHE_DIR}"
 
-### Remove folder if exists (if cache'd from previous run)
-rm -rf libpostal
+# delete libpostal from cache if it's not a git repo
+if [ -d "libpostal" ] && [ ! -d "libpostal/.git" ]; then
+    rm -rf libpostal
+fi;
 
-echo "-----> cloning libpostal into cache"
+# clone libpostal repo if it does not exist
+if [ ! -d "libpostal" ]
+  echo "-----> cloning libpostal into cache"
+  git clone https://github.com/openvenues/libpostal
+fi;
 
-git clone https://github.com/openvenues/libpostal
 cd libpostal/
-./bootstrap.sh
-LDFLAGS="-L${BUILD_DIR}/libpostal/lib" CFLAGS="-I${BUILD_DIR}/libpostal/include" PKG_CONFIG_PATH="${BUILD_DIR}/libpostal/lib/pkgconfig"
-./configure  --disable-data-download --prefix=${INSTALL_DIR} --datadir=${INSTALL_DIR}/data
 
-echo "-----> libpostal make"
-make -j4
-echo "-----> libpostal install"
+if test ! -f config.status; then
+  echo "-----> compiling libpostal"
+  ./bootstrap.sh
+  LDFLAGS="-L${BUILD_DIR}/libpostal/lib" CFLAGS="-I${BUILD_DIR}/libpostal/include" PKG_CONFIG_PATH="${BUILD_DIR}/libpostal/lib/pkgconfig"
+  ./configure --prefix=${BUILD_DIR}/libpostal --datadir=${BUILD_DIR}/libpostal/data
+  make -j4
+fi;
+
+echo "-----> installing libpostal"
 make install
 
-echo "-----> move libpostal to build dir"
-mv "${INSTALL_DIR}" "${BUILD_DIR}/libpostal"
-
-mkdir -p "${BUILD_DIR}/libpostal/src"
-mv "${CACHE_DIR}/libpostal/src" "${BUILD_DIR}/libpostal/src"
-
-# export LD_LIBRARY_PATH="${BUILD_DIR}/libpostal/lib"
-
-mkdir -p "${BUILD_DIR}/libpostal_o"
-cp -avr "${BUILD_DIR}/libpostal/include" "${BUILD_DIR}/libpostal_o/"
-cp -avr "${BUILD_DIR}/libpostal/lib" "${BUILD_DIR}/libpostal_o/"
+export LD_LIBRARY_PATH="${BUILD_DIR}/libpostal/lib"
