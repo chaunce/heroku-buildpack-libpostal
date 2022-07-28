@@ -43,7 +43,7 @@ mv /app/libpostal/* "${BUILD_DIR}/libpostal"
 mkdir -p "${BUILD_DIR}/libpostal/src"
 mv "${CACHE_DIR}/libpostal/src" "${BUILD_DIR}/libpostal/src"
 
-### export LD_LIBRARY_PATH="${BUILD_DIR}/libpostal/lib"
+export LD_LIBRARY_PATH="${BUILD_DIR}/libpostal/lib"
 
 ### mkdir -p "${BUILD_DIR}/libpostal_o/include"
 ### mkdir -p "${BUILD_DIR}/libpostal_o/lib"
