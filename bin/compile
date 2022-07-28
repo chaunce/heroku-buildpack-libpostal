@@ -1,50 +1,29 @@
-#!/usr/bin/env bash
-# bin/compile <build-dir> <cache-dir> <env-dir>
+#!/bin/sh
+set -x
+set -e
 
-echo "-----> Begin libpostal install"
+BUILD=$1
+CACHE=$2
 
-### Configure environment
+cd $CACHE
 
-set -o errexit    # always exit on error
-set -o pipefail   # don't ignore exit codes when piping output
-unset GIT_DIR     # Avoid GIT_DIR leak from previous build steps
-
-### Configure directories
-
-BUILD_DIR=${1:-}
-CACHE_DIR=${2:-}
-ENV_DIR=${3:-}
-
-echo "       Using cache dir ${CACHE_DIR}"
-echo "       Using build dir ${BUILD_DIR}"
-
-mkdir -p "${BUILD_DIR}"
-mkdir -p "${CACHE_DIR}"
-
-cd "${CACHE_DIR}"
-
-# delete libpostal from cache if it's not a git repo
-if [ -d "libpostal" ] && [ ! -d "libpostal/.git" ]; then
-  rm -rf libpostal
-fi;
-
-# clone libpostal repo if it does not exist
-if [ ! -d "libpostal" ]; then
-  echo "-----> cloning libpostal into cache"
-  git clone https://github.com/openvenues/libpostal
-fi;
-
-cd libpostal/
-
-if test ! -f config.status; then
-  echo "-----> compiling libpostal"
-  ./bootstrap.sh
-  LDFLAGS="-L${BUILD_DIR}/libpostal/lib" CFLAGS="-I${BUILD_DIR}/libpostal/include" PKG_CONFIG_PATH="${BUILD_DIR}/libpostal/lib/pkgconfig"
-  ./configure --prefix=${BUILD_DIR}/libpostal --datadir=${BUILD_DIR}/libpostal/data
-  make -j4
-fi;
-
-echo "-----> installing libpostal"
+if cd libpostal; then
+  git pull
+else
+  git clone https://github.com/openvenues/libpostal --depth 1 --single-branch --branch=master
+  cd libpostal
+fi
+./bootstrap.sh
+./configure --prefix=/app/vendor --disable-data-download
+make
+# install libpostal to /app/vendor so it would be available for a slug compilation
 make install
+# copy libpostal to the build directory so it would appear in the slug
+mkdir --parent $BUILD/vendor
+cp --recursive /app/vendor/bin /app/vendor/include /app/vendor/lib $BUILD/vendor
+# Fetch data manualy after Dyno start as it exeeds a slug size limit
+# /app/vendor/bin/libpostal_data download all /app/vendor/share/libpostal
 
-export LD_LIBRARY_PATH="${BUILD_DIR}/libpostal/lib"
+# Set the right prefix for bundler:
+mkdir $BUILD/.bundle
+echo 'BUNDLE_BUILD__RUBY_POSTAL: "--with-libpostal-dir=/app/vendor"' >> $BUILD/.bundle/config
