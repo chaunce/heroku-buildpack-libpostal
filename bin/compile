@@ -27,11 +27,11 @@ cd "${CACHE_DIR}"
 
 # delete libpostal from cache if it's not a git repo
 if [ -d "libpostal" ] && [ ! -d "libpostal/.git" ]; then
-    rm -rf libpostal
+  rm -rf libpostal
 fi;
 
 # clone libpostal repo if it does not exist
-if [ ! -d "libpostal" ]
+if [ ! -d "libpostal" ];
   echo "-----> cloning libpostal into cache"
   git clone https://github.com/openvenues/libpostal
 fi;
