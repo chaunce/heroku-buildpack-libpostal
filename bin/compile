@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # bin/compile <build-dir> <cache-dir> <env-dir>
 
+echo "-----> Begin libpostal install"
+
 ### Configure environment
 
 set -o errexit    # always exit on error
@@ -12,41 +14,42 @@ unset GIT_DIR     # Avoid GIT_DIR leak from previous build steps
 BUILD_DIR=${1:-}
 CACHE_DIR=${2:-}
 ENV_DIR=${3:-}
+INSTALL_DIR="/app/libpostal"
+
+echo "       Using cache dir ${CACHE_DIR}"
+echo "       Using build dir ${BUILD_DIR}"
+echo "       Using install dir ${INSTALL_DIR}"
+
 
 mkdir -p "${BUILD_DIR}"
 mkdir -p "${CACHE_DIR}"
 
 cd "${CACHE_DIR}"
 
-echo "-----> Downloading libpostal in ${CACHE_DIR}/libpostal"
-echo "-----> build dir is ${BUILD_DIR}"
-
 ### Remove folder if exists (if cache'd from previous run)
 rm -rf libpostal
 
-echo "-----> cloning libpostal"
+echo "-----> cloning libpostal into cache"
 
 git clone https://github.com/openvenues/libpostal
 cd libpostal/
 ./bootstrap.sh
 LDFLAGS="-L${BUILD_DIR}/libpostal/lib" CFLAGS="-I${BUILD_DIR}/libpostal/include" PKG_CONFIG_PATH="${BUILD_DIR}/libpostal/lib/pkgconfig"
-./configure  --disable-data-download --prefix=/app/libpostal --datadir=/app/libpostal/data
+./configure  --disable-data-download --prefix=${INSTALL_DIR} --datadir=${INSTALL_DIR}/data
 
 echo "-----> libpostal make"
 make -j4
+echo "-----> libpostal install"
 make install
 
-echo "-----> libpostal mv to ${BUILD_DIR}/libpostal"
-mkdir -p "${BUILD_DIR}/libpostal"
-mv /app/libpostal/* "${BUILD_DIR}/libpostal"
+echo "-----> move libpostal to build dir"
+mv "${INSTALL_DIR}" "${BUILD_DIR}/libpostal"
 
 mkdir -p "${BUILD_DIR}/libpostal/src"
 mv "${CACHE_DIR}/libpostal/src" "${BUILD_DIR}/libpostal/src"
 
-export LD_LIBRARY_PATH="${BUILD_DIR}/libpostal/lib"
+# export LD_LIBRARY_PATH="${BUILD_DIR}/libpostal/lib"
 
-### mkdir -p "${BUILD_DIR}/libpostal_o/include"
-### mkdir -p "${BUILD_DIR}/libpostal_o/lib"
-
-### cp -avr "${BUILD_DIR}/libpostal/include/." "${BUILD_DIR}/libpostal_o/include/"
-### cp -avr "${BUILD_DIR}/libpostal/lib/." "${BUILD_DIR}/libpostal_o/lib/"
+mkdir -p "${BUILD_DIR}/libpostal_o"
+cp -avr "${BUILD_DIR}/libpostal/include" "${BUILD_DIR}/libpostal_o/"
+cp -avr "${BUILD_DIR}/libpostal/lib" "${BUILD_DIR}/libpostal_o/"
