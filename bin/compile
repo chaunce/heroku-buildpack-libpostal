@@ -14,11 +14,9 @@ unset GIT_DIR     # Avoid GIT_DIR leak from previous build steps
 BUILD_DIR=${1:-}
 CACHE_DIR=${2:-}
 ENV_DIR=${3:-}
-INSTALL_DIR="/app/libpostal"
 
 echo "       Using cache dir ${CACHE_DIR}"
 echo "       Using build dir ${BUILD_DIR}"
-echo "       Using install dir ${INSTALL_DIR}"
 
 mkdir -p "${BUILD_DIR}"
 mkdir -p "${CACHE_DIR}"
